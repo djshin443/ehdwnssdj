@@ -1,0 +1,1292 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <title>지율이의 픽셀 영어 게임</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Jua&display=swap');
+
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background: #000;
+            font-family: 'Jua', sans-serif;
+            overflow: hidden;
+            touch-action: none;
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            image-rendering: pixelated;
+            image-rendering: -moz-crisp-edges;
+            image-rendering: crisp-edges;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        #gameContainer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #5C94FC;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #gameCanvas {
+            flex: 1;
+            display: block;
+            width: 100%;
+            height: 100%;
+            background: transparent;
+            image-rendering: pixelated;
+            image-rendering: -moz-crisp-edges;
+            image-rendering: crisp-edges;
+        }
+
+        /* 공주님을 위한 예쁜 UI - 보라색 테마 */
+        #fullscreenBtn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: linear-gradient(135deg, #9370DB, #DDA0DD);
+            border: 3px solid #FFF;
+            color: white;
+            padding: 10px 15px;
+            font-size: 12px;
+            cursor: pointer;
+            z-index: 1000;
+            font-family: 'Jua', sans-serif;
+            border-radius: 20px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+
+        #ui {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            right: 120px;
+            color: white;
+            font-size: 14px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            z-index: 10;
+            background: linear-gradient(135deg, rgba(147,112,219,0.9), rgba(221,160,221,0.9));
+            border: 3px solid #FFF;
+            padding: 12px 20px;
+            display: none;
+            font-family: 'Jua', sans-serif;
+            border-radius: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        #questionPanel {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, #F8F4FF, #E6E6FA);
+            padding: 20px;
+            border: 4px solid #9370DB;
+            text-align: center;
+            font-size: 16px;
+            color: #6B3AA0;
+            display: none;
+            z-index: 50;
+            width: 90vw;
+            max-width: 500px;
+            font-family: 'Jua', sans-serif;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        #questionText {
+            font-size: 32px;
+            margin-bottom: 15px;
+            color: #9932CC;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+            font-weight: bold;
+            letter-spacing: 2px;
+        }
+
+        #enemyInfo {
+            margin: 10px 0;
+            font-size: 14px;
+            color: #9370DB;
+            background: rgba(255,255,255,0.5);
+            padding: 8px 15px;
+            border-radius: 15px;
+            display: inline-block;
+        }
+
+        /* 4지선다 버튼 스타일 - 보라색 테마 */
+        #choicesContainer {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin: 20px 0;
+            padding: 0 10px;
+        }
+
+        .choice-btn {
+            background: linear-gradient(135deg, #E6E6FA, #D8BFD8);
+            border: 3px solid #9370DB;
+            color: #9932CC;
+            padding: 15px 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            font-family: 'Jua', sans-serif;
+            border-radius: 15px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            transition: all 0.2s ease;
+            text-align: center;
+            line-height: 1.4;
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .choice-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.3);
+            background: linear-gradient(135deg, #9370DB, #DDA0DD);
+            color: white;
+        }
+
+        .choice-btn:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        #controls {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            display: flex;
+            gap: 2%;
+            z-index: 10;
+            height: 15vh;
+            min-height: 60px;
+            max-height: 80px;
+            padding: 0 2%;
+            background: rgba(0,0,0,0.2);
+        }
+
+        .control-btn {
+            background: linear-gradient(135deg, #DDA0DD, #D8BFD8);
+            border: 3px solid #FFF;
+            color: #9932CC;
+            padding: 15px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            touch-action: manipulation;
+            flex: 1;
+            font-family: 'Jua', sans-serif;
+            border-radius: 20px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            text-shadow: 1px 1px 2px rgba(255,255,255,0.5);
+            -webkit-tap-highlight-color: transparent;
+            position: relative;
+            z-index: 20;
+            min-height: 50px;
+            transition: all 0.1s ease;
+        }
+        
+        .control-btn:active {
+            transform: scale(0.95);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        }
+
+        #jumpBtn {
+            background: linear-gradient(135deg, #9932CC, #9370DB);
+            color: white;
+            flex: 2;
+            font-size: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        /* 보라색 테마 메뉴 스타일 */
+        #characterSelectMenu, #unitSelectMenu {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, #DDA0DD 0%, #D8BFD8 50%, #E6E6FA 100%);
+            z-index: 100;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .menu-container {
+            background: rgba(248, 244, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 24px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(153, 50, 204, 0.2);
+            border: 3px solid #9370DB;
+            max-width: 800px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .menu-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        #menuTitle {
+            font-size: clamp(24px, 5vw, 36px);
+            color: #9932CC;
+            font-weight: 700;
+            margin-bottom: 12px;
+            font-family: 'Jua', sans-serif;
+            letter-spacing: -0.5px;
+            text-shadow: 2px 2px 0 #FFF, 3px 3px 10px rgba(153, 50, 204, 0.3);
+        }
+
+        #menuSubtitle {
+            font-size: clamp(14px, 3vw, 18px);
+            color: #6B3AA0;
+            font-weight: 400;
+            font-family: 'Jua', sans-serif;
+            background: rgba(255,255,255,0.8);
+            padding: 10px 20px;
+            border-radius: 15px;
+            display: inline-block;
+        }
+
+        .menu-content {
+            display: flex;
+            flex-direction: column;
+            gap: 32px;
+        }
+
+        .menu-card {
+            background: linear-gradient(135deg, #ffffff, #F8F4FF);
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 4px 12px rgba(153, 50, 204, 0.1);
+            border: 2px solid #DDA0DD;
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #9932CC;
+            margin-bottom: 16px;
+            font-family: 'Jua', sans-serif;
+            text-shadow: 1px 1px 2px rgba(255,255,255,0.8);
+        }
+
+        .character-grid {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .character-display {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            padding: 20px;
+            background: linear-gradient(135deg, #ffffff, #E6E6FA);
+            border-radius: 16px;
+            border: 2px solid #9370DB;
+            box-shadow: 0 4px 12px rgba(147, 112, 219, 0.2);
+        }
+
+        #selectedCharacterPixel {
+            border-radius: 12px;
+            background: rgba(255,255,255,0.5);
+            image-rendering: pixelated;
+            image-rendering: -moz-crisp-edges;
+            image-rendering: crisp-edges;
+        }
+
+        #selectedCharacterName {
+            font-family: 'Jua', sans-serif;
+            font-size: 18px;
+            font-weight: 600;
+            color: #9932CC;
+            text-shadow: 1px 1px 2px rgba(255,255,255,0.8);
+        }
+
+        .grid-container {
+            display: grid;
+            gap: 12px;
+        }
+
+        #unitGrid {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: nowrap;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            padding: 5px;
+        }
+        
+        #unitGrid::-webkit-scrollbar {
+            height: 8px;
+        }
+        
+        #unitGrid::-webkit-scrollbar-track {
+            background: #E6E6FA;
+            border-radius: 4px;
+        }
+        
+        #unitGrid::-webkit-scrollbar-thumb {
+            background: #9370DB;
+            border-radius: 4px;
+        }
+
+        .character-btn {
+            background: linear-gradient(135deg, #ffffff, #E6E6FA);
+            border: 3px solid #9370DB;
+            border-radius: 12px;
+            padding: 16px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            min-width: 120px;
+            font-family: 'Jua', sans-serif;
+            font-weight: 500;
+            color: #9932CC;
+            box-shadow: 0 4px 10px rgba(147, 112, 219, 0.2);
+        }
+
+        .character-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(147, 112, 219, 0.3);
+            border-color: #9932CC;
+        }
+
+        .character-btn.selected {
+            background: linear-gradient(135deg, #9370DB, #9932CC);
+            border-color: #9932CC;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(153, 50, 204, 0.4);
+            animation: glow 2s infinite alternate;
+        }
+
+        @keyframes glow {
+            from { box-shadow: 0 8px 20px rgba(153, 50, 204, 0.4); }
+            to { box-shadow: 0 12px 30px rgba(153, 50, 204, 0.6); }
+        }
+
+        .character-pixel {
+            width: 48px;
+            height: 48px;
+            margin-bottom: 5px;
+            image-rendering: pixelated;
+            image-rendering: -moz-crisp-edges;
+            image-rendering: crisp-edges;
+            border-radius: 8px;
+            background: rgba(255,255,255,0.5);
+        }
+
+        .unit-btn {
+            background: linear-gradient(135deg, #ffffff, #e6f3ff);
+            border: 2px solid #4169E1;
+            border-radius: 8px;
+            padding: 12px 20px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: 'Jua', sans-serif;
+            font-weight: 500;
+            color: #4169E1;
+            font-size: 14px;
+            box-shadow: 0 2px 8px rgba(65, 105, 225, 0.1);
+            text-align: center;
+            white-space: nowrap;
+            flex: 0 0 auto;
+        }
+
+        .unit-btn:hover {
+            border-color: #1E90FF;
+            background: linear-gradient(135deg, #f0f8ff, #e6f3ff);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(65, 105, 225, 0.2);
+        }
+
+        .unit-btn.selected {
+            background: linear-gradient(135deg, #4169E1, #1E90FF);
+            border-color: #1E90FF;
+            color: white;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(30, 144, 255, 0.3);
+        }
+
+        .selection-summary {
+            background: linear-gradient(135deg, #F8F4FF, #E6E6FA);
+            border-radius: 12px;
+            padding: 20px;
+            border: 2px solid #DDA0DD;
+            box-shadow: 0 4px 12px rgba(147, 112, 219, 0.1);
+        }
+
+        .selection-item {
+            font-family: 'Jua', sans-serif;
+            color: #6B3AA0;
+            margin-bottom: 8px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .selection-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .start-btn {
+            background: linear-gradient(135deg, #32CD32, #90EE90);
+            border: 3px solid #FFF;
+            border-radius: 12px;
+            padding: 16px 32px;
+            color: white;
+            font-family: 'Jua', sans-serif;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            align-self: center;
+            min-width: 200px;
+            box-shadow: 0 6px 15px rgba(50, 205, 50, 0.3);
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+        }
+
+        .start-btn:hover:not(:disabled) {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(50, 205, 50, 0.4);
+        }
+
+        .start-btn:disabled {
+            background: linear-gradient(135deg, #DDA0DD, #D8BFD8);
+            color: #6B3AA0;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .back-btn {
+            background: linear-gradient(135deg, #DDA0DD, #9370DB);
+            border: 3px solid #FFF;
+            border-radius: 12px;
+            padding: 16px 32px;
+            color: white;
+            font-family: 'Jua', sans-serif;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            min-width: 180px;
+            box-shadow: 0 6px 15px rgba(147, 112, 219, 0.3);
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+        }
+
+        .back-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(147, 112, 219, 0.4);
+        }
+
+        .character-greeting {
+            background: linear-gradient(135deg, #E6E6FA, #F8F4FF);
+            border: 2px solid #9370DB;
+            border-radius: 15px;
+            padding: 12px 20px;
+            margin-top: 10px;
+            font-family: 'Jua', sans-serif;
+            color: #9932CC;
+            font-size: 16px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(147, 112, 219, 0.2);
+            max-width: 90%;
+            width: 100%;
+            min-width: 400px;
+        }
+
+        .vehicle-btn {
+            background: linear-gradient(135deg, #ffffff, #F8F4FF);
+            border: 2px solid #DDA0DD;
+            border-radius: 10px;
+            padding: 10px 15px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            font-family: 'Jua', sans-serif;
+            font-weight: 500;
+            color: #9932CC;
+            font-size: 14px;
+            box-shadow: 0 2px 8px rgba(147, 112, 219, 0.1);
+        }
+
+        .vehicle-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(147, 112, 219, 0.2);
+            border-color: #9932CC;
+        }
+
+        .vehicle-btn.selected {
+            background: linear-gradient(135deg, #9370DB, #9932CC);
+            border-color: #9932CC;
+            color: white;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(153, 50, 204, 0.3);
+        }
+
+        .vehicle-pixel {
+            width: 32px;
+            height: 32px;
+            image-rendering: pixelated;
+            image-rendering: -moz-crisp-edges;
+            image-rendering: crisp-edges;
+            border-radius: 4px;
+            background: rgba(255,255,255,0.3);
+        }
+
+        /* 반응형 디자인 */
+        @media screen and (max-width: 768px) {
+            .menu-container {
+                padding: 24px;
+                margin: 10px;
+            }
+
+            .menu-content {
+                gap: 24px;
+            }
+
+            .menu-card {
+                padding: 20px;
+            }
+
+            .character-btn {
+                min-width: 100px;
+                padding: 12px;
+            }
+
+            .character-pixel {
+                width: 40px;
+                height: 40px;
+            }
+
+            #unitGrid {
+                display: flex;
+                gap: 12px;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+                padding-bottom: 10px;
+                flex-wrap: nowrap;
+            }
+            
+            #unitGrid::-webkit-scrollbar {
+                height: 8px;
+            }
+            
+            #unitGrid::-webkit-scrollbar-track {
+                background: #E6E6FA;
+                border-radius: 4px;
+            }
+            
+            #unitGrid::-webkit-scrollbar-thumb {
+                background: #9370DB;
+                border-radius: 4px;
+            }
+            
+            .unit-btn {
+                flex: 0 0 auto;
+                min-width: 80px;
+            }
+
+            .button-group {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .back-btn, .start-btn {
+                min-width: auto;
+                width: 100%;
+            }
+
+            #choicesContainer {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+
+            .choice-btn {
+                min-height: 60px;
+                font-size: 14px;
+            }
+        }
+
+        @media screen and (orientation: landscape) and (max-height: 600px) {
+            .menu-container {
+                max-height: 95vh;
+                padding: 20px;
+            }
+
+            .menu-header {
+                margin-bottom: 20px;
+            }
+
+            .menu-content {
+                gap: 20px;
+            }
+
+            .menu-card {
+                padding: 16px;
+            }
+
+            .button-group {
+                flex-direction: row;
+                gap: 15px;
+            }
+        }
+
+        /* 가로 모드 최적화 */
+        @media screen and (orientation: landscape) {
+            .menu-container {
+                display: flex;
+                flex-direction: column;
+                max-width: 1000px;
+                padding: 24px;
+            }
+
+            .menu-content {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 24px;
+                align-items: start;
+            }
+
+            #characterSelectMenu .menu-card:first-child {
+                grid-column: 1 / -1;
+            }
+
+            #characterSelectMenu .start-btn {
+                grid-column: 1 / -1;
+                justify-self: center;
+            }
+
+            #unitSelectMenu .menu-card:first-child {
+                grid-column: 1 / -1;
+            }
+
+            #unitSelectMenu .selection-summary {
+                grid-column: 1 / -1;
+            }
+
+            #unitSelectMenu .button-group {
+                grid-column: 1 / -1;
+                justify-self: center;
+            }
+
+            .character-grid {
+                justify-content: center;
+            }
+
+            #unitGrid {
+                display: flex;
+                gap: 12px;
+                justify-content: center;
+                flex-wrap: nowrap;
+            }
+        }
+
+        @media screen and (orientation: portrait) {
+			/* 메뉴가 아닌 게임 중일 때만 세로 모드 경고 표시 */
+			#gameContainer:not(.menu-mode)::before {
+				content: "💜 화면을 가로로 돌려주세요! 💜";
+				position: fixed;
+				top: 50%;
+				left: 50%;
+				transform: translate(-50%, -50%);
+				background: linear-gradient(135deg, #9370DB, #DDA0DD);
+				color: white;
+				padding: 5vh 10vw;
+				border: 3px solid #FFF;
+				border-radius: 20px;
+				font-size: min(5vw, 20px);
+				z-index: 9999;
+				font-family: 'Jua', sans-serif;
+				text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+				box-shadow: 0 5px 20px rgba(0,0,0,0.5);
+				text-align: center;
+				line-height: 1.5;
+			}
+			
+			/* 게임 중일 때만 UI 숨김 */
+			#gameContainer:not(.menu-mode) #gameCanvas,
+			#gameContainer:not(.menu-mode) #controls,
+			#gameContainer:not(.menu-mode) #ui,
+			#gameContainer:not(.menu-mode) #questionPanel {
+				display: none !important;
+			}
+		}
+        
+        /* 모바일 최적화 */
+        @media screen and (orientation: landscape) and (max-height: 500px) {
+            #controls {
+                height: 12vh;
+                min-height: 50px;
+            }
+            
+            .control-btn {
+                font-size: min(3vh, 14px) !important;
+                padding: 1vh !important;
+            }
+            
+            #ui {
+                font-size: min(2.5vh, 12px) !important;
+                padding: 1vh 2vw !important;
+            }
+            
+            #questionPanel {
+                padding: 1.5vh 2vw !important;
+                width: 85vw;
+                max-height: 85vh;
+                border-width: 0.6vw;
+                border-radius: 3vw;
+            }
+            
+            #questionText {
+                font-size: 3.5vw !important;
+                margin-bottom: 1vh;
+            }
+
+            .choice-btn {
+                font-size: 2.5vw !important;
+                padding: 1vh 1vw !important;
+                min-height: 8vh;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="gameContainer">
+        <canvas id="gameCanvas"></canvas>
+
+        <button id="fullscreenBtn">FULL</button>
+
+        <!-- 1단계: 캐릭터 선택 화면 -->
+        <div id="characterSelectMenu">
+            <div class="menu-container">
+                <div class="menu-header">
+                    <h1 id="menuTitle">💜 지율이의 픽셀 영어 게임 💜</h1>
+                    <p id="menuSubtitle">공주님! 함께 모험할 캐릭터를 선택해주세요 ✨</p>
+                </div>
+
+                <div class="menu-content">
+                    <!-- 캐릭터 선택 카드 -->
+                    <div class="menu-card">
+                        <h3 class="card-title">✨ 캐릭터 선택</h3>
+                        <div id="characterGrid" class="character-grid">
+                            <button class="character-btn selected" data-character="jiyul">
+                                <canvas class="character-pixel" width="48" height="48"></canvas>
+                                <span>지율이</span>
+                            </button>
+                            <button class="character-btn" data-character="kiwi">
+                                <canvas class="character-pixel" width="48" height="48"></canvas>
+                                <span>키위</span>
+                            </button>
+                            <button class="character-btn" data-character="whitehouse">
+                                <canvas class="character-pixel" width="48" height="48"></canvas>
+                                <span>화이트하우스</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 다음 버튼 -->
+                    <button id="nextToUnitBtn" class="start-btn">🎯 다음: Unit 선택</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2단계: Unit 선택 화면 -->
+        <div id="unitSelectMenu" style="display: none;">
+            <div class="menu-container">
+                <div class="menu-content">
+                    <!-- 선택된 캐릭터 표시 -->
+                    <div class="menu-card">
+                        <h3 class="card-title">👑 선택된 캐릭터</h3>
+                        <div id="selectedCharacterDisplay" class="character-display">
+                            <canvas id="selectedCharacterPixel" width="64" height="64"></canvas>
+                            <span id="selectedCharacterName">지율이</span>
+                            <div id="characterGreeting" class="character-greeting">
+                                안녕! 영어 단어를 배우러 왔어요! 💕
+                            </div>
+                        </div>
+                        
+                        <!-- 지율이 선택 시 탈것 옵션 -->
+                        <div id="vehicleOptions" style="display: none; margin-top: 20px;">
+                            <h4 style="color: #9932CC; font-size: 16px; margin-bottom: 12px;">🚀 이동 방법 선택</h4>
+                            <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+                                <button class="vehicle-btn selected" data-vehicle="none">
+                                    <canvas class="vehicle-pixel" width="32" height="32"></canvas>
+                                    <span>걸어서</span>
+                                </button>
+                                <button class="vehicle-btn" data-vehicle="kiwi">
+                                    <canvas class="vehicle-pixel" width="32" height="32"></canvas>
+                                    <span>키위 타고</span>
+                                </button>
+                                <button class="vehicle-btn" data-vehicle="whitehouse">
+                                    <canvas class="vehicle-pixel" width="32" height="32"></canvas>
+                                    <span>화이트하우스 타고</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Unit 선택 카드 -->
+                    <div class="menu-card">
+                        <h3 class="card-title">📚 Unit 선택 (Lesson 1~5 모두 포함)</h3>
+                        <div id="unitGrid" class="grid-container">
+                            <button class="unit-btn" data-unit="Unit1">Unit 1</button>
+                            <button class="unit-btn" data-unit="Unit2">Unit 2</button>
+                            <button class="unit-btn" data-unit="Unit3">Unit 3</button>
+                            <button class="unit-btn" data-unit="Unit4">Unit 4</button>
+                            <button class="unit-btn" data-unit="Unit5">Unit 5</button>
+                            <button class="unit-btn" data-unit="Unit6">Unit 6</button>
+                            <button class="unit-btn" data-unit="Unit7">Unit 7</button>
+                            <button class="unit-btn" data-unit="Unit8">Unit 8</button>
+                        </div>
+                    </div>
+
+                    <!-- 선택된 내용 표시 -->
+                    <div class="selection-summary">
+                        <div id="selectedUnits" class="selection-item">💜 선택한 Unit: 없음</div>
+                    </div>
+
+                    <!-- 버튼들 -->
+                    <div class="button-group">
+                        <button id="backToCharacterBtn" class="back-btn">⬅️ 이전: 캐릭터 선택</button>
+                        <button id="startGameBtn" class="start-btn" disabled>🎮 게임 시작!</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="ui">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>📚 <span id="unitText">-</span></div>
+                <div>🏰 스테이지 <span id="stageText">1</span></div>
+                <div>⭐ <span id="score">0</span>점</div>
+                <div>💖 체력: <span id="hp">100</span></div>
+            </div>
+        </div>
+
+        <div id="questionPanel">
+            <div id="questionText">✨ 문제를 준비 중...</div>
+            <div id="enemyInfo">슬라임 체력: 1/1</div>
+            
+            <div id="choicesContainer">
+                <!-- 4지선다 버튼들이 여기에 동적으로 생성됩니다 -->
+            </div>
+        </div>
+
+        <div id="controls">
+            <button class="control-btn" id="jumpBtn">🦄 점프!</button>
+            <button class="control-btn" id="menuBtn">🏠 메뉴</button>
+            <button class="control-btn" id="helpBtn">💡 도움</button>
+        </div>
+    </div>
+
+    <script>
+        // 캐릭터 픽셀 데이터
+        const characterPixelData = {
+            jiyul: {
+                idle: [
+                    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                    [0,0,0,1,1,1,1,1,1,1,1,1,0,0,0,0],
+                    [0,0,1,1,1,1,1,1,1,1,1,1,1,0,0,0],
+                    [0,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0],
+                    [0,1,2,2,2,2,2,2,2,2,2,2,2,1,0,0],
+                    [0,1,2,5,4,2,2,2,2,5,4,2,2,1,0,0],
+                    [0,1,2,5,5,2,2,2,2,5,5,2,2,1,0,0],
+                    [0,1,2,2,2,2,2,2,2,2,2,2,2,1,0,0],
+                    [0,0,2,2,2,6,6,6,6,2,2,2,2,0,0,0],
+                    [0,0,0,3,3,3,3,3,3,3,3,0,0,0,0,0],
+                    [0,0,3,3,3,3,3,3,3,3,3,3,0,0,0,0],
+                    [0,3,3,3,3,3,3,3,3,3,3,3,3,0,0,0],
+                    [0,3,3,3,3,3,3,3,3,3,3,3,3,0,0,0],
+                    [0,0,3,3,3,0,0,0,0,3,3,3,0,0,0,0],
+                    [0,0,2,2,2,0,0,0,0,2,2,2,0,0,0,0],
+                    [0,0,7,7,7,0,0,0,0,7,7,7,0,0,0,0]
+                ],
+                colorMap: {
+                    0: null,
+                    1: "#2C1810",
+                    2: "#FFE0BD",
+                    3: "#9370DB",  // 핑크에서 보라색으로 변경
+                    4: "#FFFFFF",
+                    5: "#4169E1",
+                    6: "#9932CC",  // 딥핑크에서 다크오키드로 변경
+                    7: "#8B4513"
+                }
+            },
+            kiwi: {
+                idle: [
+                    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                    [0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0],
+                    [0,0,0,0,0,0,1,2,2,2,2,1,0,0,0,0],
+                    [0,1,1,1,1,1,2,2,2,4,2,2,1,0,0,0],
+                    [1,2,2,2,2,2,2,2,2,4,2,2,2,1,1,0],
+                    [1,2,2,2,2,2,2,2,2,2,2,2,2,2,1,1],
+                    [0,1,2,2,2,2,2,2,2,2,1,1,1,1,1,1],
+                    [0,0,1,1,1,1,1,1,1,1,0,0,0,0,0,0],
+                    [0,0,8,8,0,0,0,0,8,8,0,0,0,0,0,0],
+                    [0,0,8,8,0,0,0,0,8,8,0,0,0,0,0,0],
+                    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+                ],
+                colorMap: {
+                    0: null,
+                    1: "#CC5500",
+                    2: "#FF8C00",
+                    4: "#000000",
+                    8: "#8B4513"
+                }
+            },
+            whitehouse: {
+                idle: [
+                    [0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0],
+                    [0,0,0,0,0,1,2,2,2,2,1,0,0,0,0,0],
+                    [0,0,0,0,1,2,2,2,2,2,2,1,0,0,0,0],
+                    [0,0,0,1,2,2,2,2,2,2,2,2,1,0,0,0],
+                    [0,0,1,2,2,2,2,2,2,2,2,2,2,1,0,0],
+                    [0,1,2,2,2,2,2,2,2,2,2,2,2,2,1,0],
+                    [1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1],
+                    [1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1],
+                    [1,3,4,4,3,3,5,5,5,3,3,4,4,3,3,1],
+                    [1,3,4,6,3,3,5,7,5,3,3,4,6,3,3,1],
+                    [1,3,4,4,3,3,5,5,5,3,3,4,4,3,3,1],
+                    [1,3,3,3,3,3,3,5,3,3,3,3,3,3,3,1],
+                    [1,3,3,3,3,3,3,5,3,3,3,3,3,3,3,1],
+                    [1,3,3,3,3,3,3,5,3,3,3,3,3,3,3,1],
+                    [1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1],
+                    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+                ],
+                colorMap: {
+                    0: null,
+                    1: "#808080",
+                    2: "#F5F5F5",
+                    3: "#FFFFFF",
+                    4: "#87CEEB",
+                    5: "#8B4513",
+                    6: "#4169E1",
+                    7: "#FFD700"
+                }
+            }
+        };
+
+        // 픽셀 스프라이트 그리기 함수
+        function drawCharacterPixelSprite(ctx, sprite, colorMap, scale = 3) {
+            ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+            ctx.imageSmoothingEnabled = false;
+            
+            for (let row = 0; row < sprite.length; row++) {
+                for (let col = 0; col < sprite[row].length; col++) {
+                    const pixel = sprite[row][col];
+                    if (pixel !== 0 && colorMap[pixel]) {
+                        ctx.fillStyle = colorMap[pixel];
+                        ctx.fillRect(col * scale, row * scale, scale, scale);
+                    }
+                }
+            }
+        }
+
+        // 캐릭터 픽셀 아트 그리기
+        function drawCharacterPixels() {
+            const characterButtons = document.querySelectorAll('.character-btn');
+            characterButtons.forEach(button => {
+                const canvas = button.querySelector('.character-pixel');
+                const character = button.getAttribute('data-character');
+                
+                if (canvas && characterPixelData[character]) {
+                    const ctx = canvas.getContext('2d');
+                    drawCharacterPixelSprite(ctx, characterPixelData[character].idle, characterPixelData[character].colorMap, 3);
+                }
+            });
+        }
+
+        // 캐릭터별 인사말 데이터
+        const characterGreetings = {
+            jiyul: "안녕! 나는 지율이야! 💜 오늘은 영어 단어를 배우러 왔어! 키위랑 화이트하우스도 함께할까? ✨",
+            kiwi: "키위키위~! 🥝 나는 지율이가 키우는 크레스티드게코 키위야! 영어 단어 외우면서 같이 신나게 놀자! 어둠 속에서도 영어 척척! ✨",
+            whitehouse: "안녕! 나는 화이트하우스 텐트야! 🏕️ 지율이만의 비밀 아지트! 내 안에서 영어 공부하고 재밌는 놀이도 해보자! 우리만의 특별한 공간이야! 🎪"
+        };
+
+        // selectCharacter 함수
+        function selectCharacter(characterName) {
+            // gameState가 존재하면 업데이트
+            if (typeof gameState !== 'undefined') {
+                gameState.selectedCharacter = characterName;
+                gameState.selectedVehicle = 'none';
+            } else {
+                // gameState가 없어도 전역 변수로 저장
+                window.tempSelectedCharacter = characterName;
+                window.tempSelectedVehicle = 'none';
+            }
+            
+            const nameElement = document.getElementById('selectedCharacterName');
+            if (nameElement) {
+                nameElement.textContent = characterName === 'jiyul' ? '지율이' : 
+                                        characterName === 'kiwi' ? '키위' : '화이트하우스';
+            }
+            
+            const greetingElement = document.getElementById('characterGreeting');
+            if (greetingElement) {
+                if (characterGreetings[characterName]) {
+                    greetingElement.textContent = characterGreetings[characterName];
+                } else {
+                    greetingElement.textContent = '안녕하세요! 함께 영어 공부해볼까요? 💜';
+                }
+            }
+            
+            const pixelCanvas = document.getElementById('selectedCharacterPixel');
+            if (pixelCanvas && characterPixelData[characterName]) {
+                const ctx = pixelCanvas.getContext('2d');
+                drawCharacterPixelSprite(ctx, characterPixelData[characterName].idle, characterPixelData[characterName].colorMap, 4);
+            }
+            
+            // 지율이 선택 시 탈것 옵션 표시 (gameState와 무관하게 작동)
+            const vehicleOptions = document.getElementById('vehicleOptions');
+            if (vehicleOptions) {
+                if (characterName === 'jiyul') {
+                    vehicleOptions.style.display = 'block';
+                    // 탈것 버튼에 픽셀 이미지 그리기
+                    setTimeout(() => {
+                        drawVehiclePixels();
+                    }, 50);
+                } else {
+                    vehicleOptions.style.display = 'none';
+                }
+            }
+        }
+
+        // 탈것 픽셀 그리기 함수
+        function drawVehiclePixels() {
+            const vehicleButtons = document.querySelectorAll('.vehicle-btn');
+            vehicleButtons.forEach(button => {
+                const canvas = button.querySelector('.vehicle-pixel');
+                const vehicle = button.getAttribute('data-vehicle');
+                
+                if (canvas) {
+                    const ctx = canvas.getContext('2d');
+                    
+                    if (vehicle === 'none' && characterPixelData.jiyul) {
+                        // 걸어서 - 지율이 이미지
+                        drawCharacterPixelSprite(ctx, characterPixelData.jiyul.idle, characterPixelData.jiyul.colorMap, 2);
+                    } else if (vehicle === 'kiwi' && characterPixelData.kiwi) {
+                        // 키위 이미지
+                        drawCharacterPixelSprite(ctx, characterPixelData.kiwi.idle, characterPixelData.kiwi.colorMap, 2);
+                    } else if (vehicle === 'whitehouse' && characterPixelData.whitehouse) {
+                        // 화이트하우스 이미지
+                        drawCharacterPixelSprite(ctx, characterPixelData.whitehouse.idle, characterPixelData.whitehouse.colorMap, 2);
+                    }
+                }
+            });
+        }
+
+        function setupCharacterSelection() {
+            const characterButtons = document.querySelectorAll('.character-btn');
+            characterButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    characterButtons.forEach(btn => btn.classList.remove('selected'));
+                    this.classList.add('selected');
+                    
+                    const characterName = this.getAttribute('data-character');
+                    selectCharacter(characterName);
+                });
+            });
+        }
+
+        // DOM 로드 후 캐릭터 그리기
+        document.addEventListener('DOMContentLoaded', function() {
+            drawCharacterPixels();
+            setupCharacterSelection();
+            
+            // 다음 버튼 이벤트 추가
+            document.getElementById('nextToUnitBtn').addEventListener('click', function() {
+                const selectedCharacterBtn = document.querySelector('.character-btn.selected');
+                const selectedCharacter = selectedCharacterBtn.getAttribute('data-character');
+                
+                document.getElementById('characterSelectMenu').style.display = 'none';
+                document.getElementById('unitSelectMenu').style.display = 'flex';
+                
+                setTimeout(() => {
+                    selectCharacter(selectedCharacter);
+                    // 지율이 선택 시 탈것 픽셀 그리기
+                    if (selectedCharacter === 'jiyul') {
+                        drawVehiclePixels();
+                    }
+                }, 100);
+            });
+        });
+    </script>
+
+    <!-- 게임 스크립트 파일들 로드 -->
+	<script src="characters.js"></script>
+	<script src="words.js"></script>
+	<script src="particles.js"></script>
+	<script src="background.js"></script>
+	<script src="ending.js"></script>
+	<script src="opening.js"></script>
+	<script src="boss-dialogue.js"></script>  
+	<script src="main.js"></script>
+
+    <!-- 이벤트 리스너 설정 스크립트 -->
+    <script>
+        // DOM이 완전히 로드된 후 한 번만 실행
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', setupEventListeners);
+        } else {
+            setupEventListeners();
+        }
+
+        function setupEventListeners() {
+            if (window.eventListenersSetup) {
+                return;
+            }
+            window.eventListenersSetup = true;
+            
+            // Unit 버튼들
+            const unitGrid = document.getElementById('unitGrid');
+            if (unitGrid) {
+                unitGrid.addEventListener('click', function(e) {
+                    const button = e.target.closest('.unit-btn');
+                    if (button) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        const unit = button.getAttribute('data-unit');
+                        toggleUnit(unit);
+                    }
+                });
+            }
+
+            // 탈것 선택 버튼들
+            document.addEventListener('click', function(e) {
+                const vehicleBtn = e.target.closest('.vehicle-btn');
+                if (vehicleBtn) {
+                    e.preventDefault();
+                    const vehicle = vehicleBtn.getAttribute('data-vehicle');
+                    selectVehicle(vehicle);
+                }
+            });
+
+            // 기타 버튼들
+            const startBtn = document.getElementById('startGameBtn');
+            if (startBtn) {
+                startBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    if (!this.disabled) {
+                        startSelectedGame();
+                    }
+                });
+            }
+            
+            const fullscreenBtn = document.getElementById('fullscreenBtn');
+            if (fullscreenBtn) {
+                fullscreenBtn.addEventListener('click', toggleFullscreen);
+            }
+            
+            const jumpBtn = document.getElementById('jumpBtn');
+            if (jumpBtn) {
+                jumpBtn.addEventListener('click', jump);
+            }
+            
+            const menuBtn = document.getElementById('menuBtn');
+            if (menuBtn) {
+                menuBtn.addEventListener('click', showMenu);
+            }
+            
+            const helpBtn = document.getElementById('helpBtn');
+            if (helpBtn) {
+                helpBtn.addEventListener('click', showHelp);
+            }
+            
+            // 이전 버튼 (Unit 선택 -> 캐릭터 선택)
+            const backToCharacterBtn = document.getElementById('backToCharacterBtn');
+            if (backToCharacterBtn) {
+                backToCharacterBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    showCharacterSelectMenu();
+                });
+            }
+            
+            // 기본 캐릭터 선택 (지율이)
+            selectCharacter('jiyul');
+            // 탈것 픽셀 그리기
+            setTimeout(() => {
+                drawVehiclePixels();
+            }, 100);
+        }
+
+        // 탈것 선택 함수
+        function selectVehicle(vehicleName) {
+            // gameState가 존재하면 업데이트
+            if (typeof gameState !== 'undefined') {
+                gameState.selectedVehicle = vehicleName;
+            } else {
+                // gameState가 없어도 전역 변수로 저장
+                window.tempSelectedVehicle = vehicleName;
+            }
+            
+            // 모든 탈것 버튼 선택 해제
+            document.querySelectorAll('.vehicle-btn').forEach(btn => {
+                btn.classList.remove('selected');
+            });
+            
+            // 선택된 탈것 버튼 선택
+            const selectedBtn = document.querySelector(`[data-vehicle="${vehicleName}"]`);
+            if (selectedBtn) {
+                selectedBtn.classList.add('selected');
+            }
+            
+            console.log('탈것 선택됨:', vehicleName);
+        }
+    </script>
+</body>
+</html>
