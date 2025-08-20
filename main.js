@@ -1,6 +1,4 @@
-완전한 코드를 제공하겠습니다. 누락된 함수들과 오류 처리를 모두 포함했습니다:
 
-```javascript
 // 영어 게임 로직 - 메인 파일 (완전판)
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
