@@ -513,7 +513,7 @@ function update() {
     
     // 20스테이지 엔딩 직전에 보스 등장 (한 번만)
     if (gameState.stage === 20 && !gameState.bossSpawned && 
-		ameState.distance > 39000) {
+		gameState.distance > 39000) {
 		
 		const bossX = player.worldX + 600;
 		enemies.push({
