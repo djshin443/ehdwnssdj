@@ -1377,16 +1377,18 @@ function gameOver() {
 
 // 다음 스테이지
 function nextStage() {
-    if (gameState.stage >= 20) {
-        showEnding();
-        return;
-    }
-    
     gameState.stage++;
     gameState.speed += 0.5;
-	gameState.bossSpawned = false;
-    alert(`🎉 스테이지 ${gameState.stage - 1} 클리어! 🎉\n스테이지 ${gameState.stage}로 이동합니다!`);
+    gameState.bossSpawned = false;
     
+    let stageMessage;
+    if (gameState.stage === 20) {
+        stageMessage = `스테이지 19 클리어! 최종 스테이지 20 진입! 강력한 보스가 기다리고 있습니다!`;
+    } else {
+        stageMessage = `스테이지 ${gameState.stage - 1} 클리어! 스테이지 ${gameState.stage}로 이동합니다!`;
+    }
+    
+    alert(stageMessage);
     generateMoreEnemies();
 }
 
