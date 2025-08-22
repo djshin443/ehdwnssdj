@@ -306,7 +306,7 @@ function checkIOSFullscreen() {
 function initGame() {
     gameState.running = true;
     gameState.score = 0;
-    gameState.stage = 1;
+    gameState.stage = 20;
     gameState.distance = 0;
     gameState.speed = 4;
     gameState.questionActive = false;
