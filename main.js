@@ -755,15 +755,15 @@ function checkCollisions() {
         const enemyScreenX = enemy.x - gameState.cameraX;
         
         if (enemyScreenX > -100 && enemyScreenX < canvas.width + 100) {
-            const collisionRange = enemy.isBoss ? 100 : 0;
+            const collisionRange = enemy.isBoss ? 80 : 30;
             
             // 몬스터 충돌 박스 - Y 좌표 기준 통일
             const enemyCollisionBox = {
-                x: enemy.x - collisionRange,
-                y: enemy.y - collisionRange,  // enemy.y는 이미 올바른 위치
-                width: enemy.width + collisionRange * 2,
-                height: enemy.height + collisionRange * 2
-            };
+			    x: enemy.x - collisionRange / 2,
+			    y: enemy.y - collisionRange / 2,
+			    width: enemy.width + collisionRange,
+			    height: enemy.height + collisionRange
+			};
             
             // 플레이어 충돌 박스 - 발 기준에서 머리까지
             const playerCollisionBox = {
@@ -1200,11 +1200,19 @@ function selectChoice(choiceIndex) {
 							document.getElementById('questionPanel').style.display = 'block';
 						}, true); // 중간대사 플래그
 					} else {
-						// startBossDialogue가 없으면 간단한 메시지만
-						setTimeout(() => {
-							generateEnglishQuestion();
-							updateQuestionPanel();
-						}, 1000);
+					    console.log('startBossDialogue 함수를 찾을 수 없어 직접 전투 시작');
+					    // 대화 함수가 없으면 바로 전투 시작
+					    gameState.bossDialogueActive = false;
+					    gameState.questionActive = true;
+					    gameState.currentEnemy = enemy;
+					    
+					    // UI 다시 표시
+					    document.getElementById('ui').style.display = 'block';
+					    document.getElementById('controls').style.display = 'flex';
+					    
+					    generateEnglishQuestion();
+					    updateQuestionPanel();
+					    document.getElementById('questionPanel').style.display = 'block';
 					}
 				} else {
 					generateEnglishQuestion();
