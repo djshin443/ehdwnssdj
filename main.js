@@ -12,6 +12,527 @@ const JUMP_POWER = -18;
 const JUMP_FORWARD_SPEED = 6;
 let GROUND_Y = 240;
 
+const bossMessages = {
+    intro: {
+        jiyul: [
+            { speaker: "boss", text: "흐하하하! 지구의 꼬마야! 나는 알파벳 대마왕이다!" },
+            { speaker: "jiyul", text: "어? 설마 오프닝에서 봤던 그거 아냐?!" },
+            { speaker: "boss", text: "이번엔 진짜 심각하다! A부터 Z까지 모든 영어를 내가 지배할 것이야!" },
+            { speaker: "jiyul", text: "좋아! 내가 영어 실력으로 지구를 지켜줄게!" }
+        ],
+        kiwi: [
+            { speaker: "boss", text: "흐하하하! 지구의 꼬마야! 나는 알파벳 대마왕이다!" },
+            { speaker: "kiwi", text: "라룩라룩?! (번역: 저 UFO가 왜 여기에?!)" },
+            { speaker: "boss", text: "너희들 영어 실력이 정말 대단하구나... 인정한다!" },
+            { speaker: "kiwi", text: "라룩! (번역: 내 영어 실력을 보여주겠어!)" }
+        ],
+        whitehouse: [
+            { speaker: "boss", text: "흐하하하! 지구의 꼬마야! 나는 알파벳 대마왕이다!" },
+            { speaker: "whitehouse", text: "으음... 내 센서가 강력한 적을 감지했다!" },
+            { speaker: "boss", text: "흥미롭군... 내 백과사전에 '우주 침입자 대처법' 항목이 있었던 것 같은데..." },
+            { speaker: "whitehouse", text: "데이터베이스 로딩 완료! 영어 배틀 모드 활성화!" }
+        ]
+    },
+    mid: {
+        jiyul: [
+            { speaker: "boss", text: "어... 어떻게! 내 완벽한 영어 실력이! 이럴 수가!" },
+            { speaker: "jiyul", text: "어? 생각보다 약하네! 영어 공부 열심히 한 보람이 있어!" },
+            { speaker: "boss", text: "아직 끝나지 않았다! 내가 숨겨둔 비밀 병기... 초고난도 영어 단어들!" },
+            { speaker: "boss", text: "이제부터가 진짜야! 준비끝나, 지구 꼬맹아?" }
+        ],
+        kiwi: [
+            { speaker: "boss", text: "어... 어떻게! 내 완벽한 영어 실력이! 이럴 수가!" },
+            { speaker: "kiwi", text: "라룩라룩! (번역: 하하! 내가 이기고 있어!)" },
+            { speaker: "boss", text: "아직 끝나지 않았다! 내가 숨겨둔 비밀 병기... 초고난도 영어 단어들!" },
+            { speaker: "boss", text: "이제부터가 진짜야! 준비끝나, 지구 꼬맹아?" }
+        ],
+        whitehouse: [
+            { speaker: "boss", text: "어... 어떻게! 내 완벽한 영어 실력이! 이럴 수가!" },
+            { speaker: "whitehouse", text: "계산 결과... 승리 확률 87.3%! 거의 다 왔다!" },
+            { speaker: "boss", text: "아직 끝나지 않았다! 내가 숨겨둔 비밀 병기... 초고난도 영어 단어들!" },
+            { speaker: "boss", text: "이제부터가 진짜야! 준비끝나, 지구 꼬맹아?" }
+        ]
+    },
+    defeat: {
+        jiyul: [
+            { speaker: "boss", text: "아... 아니다! 이럴 수가! 내가... 내가 졌다고?!" },
+            { speaker: "jiyul", text: "야호! 해냈어! 영어 공부 열심히 한 보람이 있었네!" },
+            { speaker: "boss", text: "흑흑... 너희들 영어 실력이 정말 대단하구나... 인정한다!" },
+            { speaker: "boss", text: "사실... 나도 영어 공부하고 싶었어. 같이 친구가 될 수 있을까?" },
+            { speaker: "jiyul", text: "앞으로도 영어 공부 열심히 해서 지구를 지킬게! 화이팅!" },
+            { speaker: "boss", text: "고마워! 이제부터 나도 영어 공부 열심히 할게! 지구 만세!" }
+        ],
+        kiwi: [
+            { speaker: "boss", text: "아... 아니다! 이럴 수가! 내가... 내가 졌다고?!" },
+            { speaker: "kiwi", text: "라룩라룩라룩! (번역: 우리가 이겼다! 지구만세!)" },
+            { speaker: "boss", text: "흑흑... 너희들 영어 실력이 정말 대단하구나... 인정한다!" },
+            { speaker: "boss", text: "사실... 나도 영어 공부하고 싶었어. 같이 친구가 될 수 있을까?" },
+            { speaker: "kiwi", text: "라룩! (번역: 이제 안전하게 간식을 먹을 수 있겠어!)" },
+            { speaker: "boss", text: "고마워! 이제부터 나도 영어 공부 열심히 할게! 지구 만세!" }
+        ],
+        whitehouse: [
+            { speaker: "boss", text: "아... 아니다! 이럴 수가! 내가... 내가 졌다고?!" },
+            { speaker: "whitehouse", text: "미션 컴플리트! 지구 방어 성공! 데이터 저장 중..." },
+            { speaker: "boss", text: "흑흑... 너희들 영어 실력이 정말 대단하구나... 인정한다!" },
+            { speaker: "boss", text: "사실... 나도 영어 공부하고 싶었어. 같이 친구가 될 수 있을까?" },
+            { speaker: "whitehouse", text: "평화가 돌아왔다. 이제 영어 학습 모드로 복귀하자!" },
+            { speaker: "boss", text: "고마워! 이제부터 나도 영어 공부 열심히 할게! 지구 만세!" }
+        ]
+    }
+};
+
+// 캐릭터별 정보 (이름, 색상)
+const characterInfo = {
+    boss: {
+        name: "알파벳 대마왕",
+        color: "#8A2BE2",
+        bgColor: "#4B0082"
+    },
+    jiyul: {
+        name: "지율이",
+        color: "#FF69B4",
+        bgColor: "#FF1493"
+    },
+    kiwi: {
+        name: "키위",
+        color: "#32CD32",
+        bgColor: "#228B22"
+    },
+    whitehouse: {
+        name: "화이트하우스",
+        color: "#4169E1",
+        bgColor: "#1E90FF"
+    }
+};
+
+// 대화 시스템 변수
+let currentDialogue = null;
+let currentDialogueIndex = 0;
+let isDialogueActive = false;
+let autoPlayInterval = null;
+let characterFaceCanvas = null;
+
+// 픽셀 캐릭터 얼굴 그리기 함수
+function drawCharacterFace(character, canvasElement) {
+    if (!canvasElement) return;
+    
+    const ctx = canvasElement.getContext('2d');
+    canvasElement.width = 128;
+    canvasElement.height = 128;
+    
+    // 캔버스 초기화
+    ctx.clearRect(0, 0, 128, 128);
+    
+    let spriteData, colorMap;
+    
+    // alphabetMonsters 객체에서 보스 데이터 가져오기
+    if (character === 'boss' && typeof alphabetMonsters !== 'undefined' && alphabetMonsters.boss) {
+        spriteData = alphabetMonsters.boss.idle;
+        colorMap = alphabetMonsters.boss.colorMap;
+    } else if (typeof pixelData !== 'undefined' && pixelData[character]) {
+        spriteData = pixelData[character].idle;
+        colorMap = pixelData[character].colorMap;
+    } else {
+        // 기본 얼굴 그리기 (픽셀 데이터가 없을 경우)
+        ctx.fillStyle = '#FFE0BD';
+        ctx.fillRect(32, 32, 64, 64);
+        return;
+    }
+    
+    // 픽셀 스프라이트 그리기 (8배 확대)
+    const scale = 8;
+    const offsetX = (128 - spriteData[0].length * scale) / 2;
+    const offsetY = (128 - spriteData.length * scale) / 2;
+    
+    for (let row = 0; row < spriteData.length; row++) {
+        for (let col = 0; col < spriteData[row].length; col++) {
+            const pixel = spriteData[row][col];
+            if (pixel !== 0 && colorMap[pixel]) {
+                ctx.fillStyle = colorMap[pixel];
+                ctx.fillRect(
+                    offsetX + col * scale, 
+                    offsetY + row * scale, 
+                    scale, 
+                    scale
+                );
+            }
+        }
+    }
+}
+
+// 개선된 보스 메시지 표시 함수
+function showBossMessage(messageType, onComplete) {
+    const character = gameState.selectedCharacter || 'jiyul';
+    const dialogues = bossMessages[messageType][character] || bossMessages[messageType]['jiyul'];
+    
+    // 게임 상태 정지
+    gameState.isMoving = false;
+    gameState.bossDialogueActive = true;
+    isDialogueActive = true;
+    
+    // UI 숨기기
+    document.getElementById('ui').style.display = 'none';
+    document.getElementById('controls').style.display = 'none';
+    document.getElementById('questionPanel').style.display = 'none';
+    
+    // 대화 시스템 초기화
+    currentDialogue = dialogues;
+    currentDialogueIndex = 0;
+    
+    // 대화 박스 생성
+    createDialogueBox(onComplete);
+    
+    // 첫 번째 대화 표시
+    showNextDialogue();
+}
+
+// 대화 박스 생성
+function createDialogueBox(onComplete) {
+    // 기존 대화 박스 제거
+    const existingBox = document.getElementById('dialogueBox');
+    if (existingBox) {
+        existingBox.remove();
+    }
+    
+    const dialogueBox = document.createElement('div');
+    dialogueBox.id = 'dialogueBox';
+    dialogueBox.style.cssText = `
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 90%;
+        max-width: 800px;
+        height: 200px;
+        background: linear-gradient(135deg, #F8F4FF, #E6E6FA);
+        border: 4px solid #9370DB;
+        border-radius: 20px;
+        font-family: 'Jua', sans-serif;
+        z-index: 1000;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        display: flex;
+        overflow: hidden;
+    `;
+    
+    // 캐릭터 얼굴 영역
+    const characterFaceArea = document.createElement('div');
+    characterFaceArea.id = 'characterFaceArea';
+    characterFaceArea.style.cssText = `
+        width: 160px;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        border-right: 3px solid #9370DB;
+        position: relative;
+        overflow: hidden;
+    `;
+    
+    // 캐릭터 얼굴 캔버스
+    characterFaceCanvas = document.createElement('canvas');
+    characterFaceCanvas.id = 'characterFaceCanvas';
+    characterFaceCanvas.style.cssText = `
+        width: 120px;
+        height: 120px;
+        image-rendering: pixelated;
+        image-rendering: -moz-crisp-edges;
+        image-rendering: crisp-edges;
+        margin-bottom: 10px;
+    `;
+    
+    // 캐릭터 이름 표시
+    const characterNameLabel = document.createElement('div');
+    characterNameLabel.id = 'characterNameLabel';
+    characterNameLabel.style.cssText = `
+        color: white;
+        font-weight: bold;
+        font-size: 14px;
+        text-align: center;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        padding: 5px;
+        border-radius: 10px;
+        background: rgba(0,0,0,0.3);
+    `;
+    
+    characterFaceArea.appendChild(characterFaceCanvas);
+    characterFaceArea.appendChild(characterNameLabel);
+    
+    // 대화 내용 영역
+    const dialogueContent = document.createElement('div');
+    dialogueContent.style.cssText = `
+        flex: 1;
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        position: relative;
+    `;
+    
+    // 화자 이름 표시
+    const speakerName = document.createElement('div');
+    speakerName.id = 'speakerName';
+    speakerName.style.cssText = `
+        font-size: 16px;
+        font-weight: bold;
+        color: #6B3AA0;
+        margin-bottom: 10px;
+    `;
+    
+    // 대화 텍스트
+    const dialogueText = document.createElement('div');
+    dialogueText.id = 'dialogueText';
+    dialogueText.style.cssText = `
+        font-size: 18px;
+        color: #4B0082;
+        line-height: 1.6;
+        flex: 1;
+        overflow-y: auto;
+        word-wrap: break-word;
+    `;
+    
+    // 버튼 영역
+    const buttonArea = document.createElement('div');
+    buttonArea.style.cssText = `
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 15px;
+    `;
+    
+    // 스킵 버튼
+    const skipButton = document.createElement('button');
+    skipButton.textContent = '스킵';
+    skipButton.style.cssText = `
+        background: linear-gradient(135deg, #FF6B6B, #FF8E8E);
+        border: 2px solid #FFF;
+        color: white;
+        padding: 8px 16px;
+        font-size: 14px;
+        font-weight: bold;
+        cursor: pointer;
+        font-family: 'Jua', sans-serif;
+        border-radius: 10px;
+        box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+        transition: all 0.2s;
+    `;
+    
+    skipButton.onmouseover = () => {
+        skipButton.style.transform = 'scale(1.05)';
+    };
+    skipButton.onmouseout = () => {
+        skipButton.style.transform = 'scale(1)';
+    };
+    
+    // 자동재생 토글 버튼
+    const autoButton = document.createElement('button');
+    autoButton.id = 'autoButton';
+    autoButton.textContent = '자동';
+    autoButton.style.cssText = `
+        background: linear-gradient(135deg, #4ECDC4, #7FDDDD);
+        border: 2px solid #FFF;
+        color: white;
+        padding: 8px 16px;
+        font-size: 14px;
+        font-weight: bold;
+        cursor: pointer;
+        font-family: 'Jua', sans-serif;
+        border-radius: 10px;
+        box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+        transition: all 0.2s;
+    `;
+    
+    // 다음/완료 버튼
+    const nextButton = document.createElement('button');
+    nextButton.id = 'nextButton';
+    nextButton.textContent = '다음';
+    nextButton.style.cssText = `
+        background: linear-gradient(135deg, #32CD32, #90EE90);
+        border: 3px solid #FFF;
+        color: white;
+        padding: 12px 24px;
+        font-size: 16px;
+        font-weight: bold;
+        cursor: pointer;
+        font-family: 'Jua', sans-serif;
+        border-radius: 15px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        transition: all 0.2s;
+    `;
+    
+    nextButton.onmouseover = () => {
+        nextButton.style.transform = 'scale(1.05)';
+    };
+    nextButton.onmouseout = () => {
+        nextButton.style.transform = 'scale(1)';
+    };
+    
+    // 이벤트 리스너
+    skipButton.onclick = () => {
+        skipDialogue(onComplete);
+    };
+    
+    autoButton.onclick = () => {
+        toggleAutoPlay();
+    };
+    
+    nextButton.onclick = () => {
+        nextDialogue(onComplete);
+    };
+    
+    // 키보드 이벤트 (스페이스바로 다음 대화)
+    const keyHandler = (e) => {
+        if (e.code === 'Space' && isDialogueActive) {
+            e.preventDefault();
+            nextDialogue(onComplete);
+        }
+    };
+    document.addEventListener('keydown', keyHandler);
+    
+    // 정리 함수를 나중에 호출할 수 있도록 저장
+    dialogueBox.cleanup = () => {
+        document.removeEventListener('keydown', keyHandler);
+        if (autoPlayInterval) {
+            clearInterval(autoPlayInterval);
+            autoPlayInterval = null;
+        }
+    };
+    
+    // 요소들 조립
+    dialogueContent.appendChild(speakerName);
+    dialogueContent.appendChild(dialogueText);
+    buttonArea.appendChild(skipButton);
+    buttonArea.appendChild(autoButton);
+    buttonArea.appendChild(nextButton);
+    dialogueContent.appendChild(buttonArea);
+    
+    dialogueBox.appendChild(characterFaceArea);
+    dialogueBox.appendChild(dialogueContent);
+    
+    document.body.appendChild(dialogueBox);
+}
+
+// 다음 대화 표시
+function showNextDialogue() {
+    if (!currentDialogue || currentDialogueIndex >= currentDialogue.length) {
+        return;
+    }
+    
+    const dialogue = currentDialogue[currentDialogueIndex];
+    const charInfo = characterInfo[dialogue.speaker];
+    
+    // 캐릭터 얼굴 영역 배경색 업데이트
+    const characterFaceArea = document.getElementById('characterFaceArea');
+    characterFaceArea.style.background = `linear-gradient(135deg, ${charInfo.bgColor}, ${charInfo.color})`;
+    
+    // 캐릭터 얼굴 그리기
+    if (characterFaceCanvas) {
+        drawCharacterFace(dialogue.speaker, characterFaceCanvas);
+    }
+    
+    // 캐릭터 이름 업데이트
+    const characterNameLabel = document.getElementById('characterNameLabel');
+    characterNameLabel.textContent = charInfo.name;
+    
+    // 화자 이름과 대화 텍스트 업데이트
+    document.getElementById('speakerName').textContent = charInfo.name;
+    document.getElementById('dialogueText').textContent = dialogue.text;
+    
+    // 버튼 텍스트 업데이트
+    const nextButton = document.getElementById('nextButton');
+    if (currentDialogueIndex >= currentDialogue.length - 1) {
+        nextButton.textContent = '완료';
+    } else {
+        nextButton.textContent = '다음';
+    }
+}
+
+// 다음 대화로 이동
+function nextDialogue(onComplete) {
+    currentDialogueIndex++;
+    
+    if (currentDialogueIndex >= currentDialogue.length) {
+        // 대화 종료
+        endDialogue(onComplete);
+    } else {
+        // 다음 대화 표시
+        showNextDialogue();
+    }
+}
+
+// 대화 스킵
+function skipDialogue(onComplete) {
+    endDialogue(onComplete);
+}
+
+// 자동재생 토글
+function toggleAutoPlay() {
+    const autoButton = document.getElementById('autoButton');
+    
+    if (autoPlayInterval) {
+        // 자동재생 중지
+        clearInterval(autoPlayInterval);
+        autoPlayInterval = null;
+        autoButton.textContent = '자동';
+        autoButton.style.background = 'linear-gradient(135deg, #4ECDC4, #7FDDDD)';
+    } else {
+        // 자동재생 시작
+        autoPlayInterval = setInterval(() => {
+            if (isDialogueActive) {
+                const onComplete = window.currentDialogueComplete;
+                nextDialogue(onComplete);
+            }
+        }, 2500); // 2.5초마다 자동 진행
+        
+        autoButton.textContent = '정지';
+        autoButton.style.background = 'linear-gradient(135deg, #FF6B6B, #FF8E8E)';
+    }
+}
+
+// 대화 종료
+function endDialogue(onComplete) {
+    isDialogueActive = false;
+    gameState.bossDialogueActive = false;
+    
+    // 대화 박스 제거
+    const dialogueBox = document.getElementById('dialogueBox');
+    if (dialogueBox) {
+        if (dialogueBox.cleanup) {
+            dialogueBox.cleanup();
+        }
+        dialogueBox.remove();
+    }
+    
+    // 자동재생 정지
+    if (autoPlayInterval) {
+        clearInterval(autoPlayInterval);
+        autoPlayInterval = null;
+    }
+    
+    // 캔버스 참조 정리
+    characterFaceCanvas = null;
+    
+    // UI 복원
+    document.getElementById('ui').style.display = 'block';
+    document.getElementById('controls').style.display = 'flex';
+    
+    // 완료 콜백 실행
+    if (onComplete) {
+        onComplete();
+    }
+}
+
+// 전역 함수로 등록 (기존 코드와의 호환성을 위해)
+window.showBossMessage = showBossMessage;
+window.currentDialogueComplete = null;
+
+// 기존 resumeBossGame 함수 대체
+window.resumeBossGame = function() {
+    // 이 함수는 새로운 시스템에서는 사용되지 않지만 호환성을 위해 유지
+    endDialogue(window.currentDialogueComplete);
+};
+
+
 // 모바일 감지 함수
 function isMobileDevice() {
     return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || 
@@ -56,7 +577,8 @@ let gameState = {
     cameraX: 0,
     screenShake: 0,
     shakeTimer: 0,
-    bossSpawned: false  // ← 이 줄 추가
+    bossSpawned: false,
+    bossDialogueActive: false
 };
 
 // 단어 관리자 초기화
@@ -313,6 +835,7 @@ function initGame() {
     gameState.isMoving = true;
     gameState.cameraX = 0;
 	gameState.bossSpawned = false; 
+	gameState.bossDialogueActive = false;
 	
     document.getElementById('questionPanel').style.display = 'none';
     document.getElementById('ui').style.display = 'block';
@@ -407,7 +930,7 @@ function generateMoreEnemies() {
     const stageAlphabets = getStageAlphabets(gameState.stage);
     
     for (let i = 0; i < 5; i++) {
-        const baseSpeed = 1.5 + (gameState.stage - 1) * 0.5;
+        const baseSpeed = 1.5; // 고정 속도 (스테이지와 무관)
         const direction = Math.random() > 0.5 ? 1 : -1;
         
         // 스테이지별 알파벳 몬스터 선택
@@ -458,7 +981,7 @@ function gameLoop() {
 // 게임 업데이트
 function update() {
     // 게임이 진행 중일 때만 이동
-    if (gameState.isMoving && !gameState.questionActive) {
+    if (gameState.isMoving && !gameState.questionActive && !gameState.bossDialogueActive) {
         gameState.distance += gameState.speed;
         gameState.backgroundOffset += gameState.speed * 0.5;
         gameState.cameraX += gameState.speed;
@@ -518,7 +1041,7 @@ function update() {
 		const bossX = player.worldX + 600;
 		enemies.push({
 			x: bossX,
-			y: GROUND_Y - (16 * PIXEL_SCALE),  // 수정: 보스도 바닥 위에 정확히 배치
+			y: GROUND_Y - (16 * PIXEL_SCALE),
 			width: 16 * PIXEL_SCALE,
 			height: 16 * PIXEL_SCALE,
 			hp: 3,
@@ -532,7 +1055,7 @@ function update() {
 			onGround: true,
 			jumpCooldown: 0,
 			isMoving: true,
-			walkSpeed: 1 + gameState.stage * 0.3,
+			walkSpeed: 2.5, // 보스 기본 속도 고정
 			direction: -1,
 			patrolStart: bossX,
 			patrolRange: 200,
@@ -545,15 +1068,15 @@ function update() {
 		console.log('🐉 보스 등장! 엔딩 직전 최종 보스전!');
 	}
 
-    // 스테이지 진행 체크 - 거리 기준 개선
-    const stageDistance = gameState.stage * 2000; // 스테이지당 필요 거리 감소
-    if (gameState.distance > stageDistance) {
-        if (gameState.stage >= 20) {
-            showEnding();
-            return;
-        }
-        nextStage();
-    }
+    // 스테이지 진행 체크 - 거리 기준 개선 
+    const stageDistance = gameState.stage * 3000; // 2000 대신 3000으로 변경
+	if (gameState.distance > stageDistance) {
+		if (gameState.stage >= 20) {
+			showEnding();
+			return;
+		}
+		nextStage();
+	}
 }
 
 // 플레이어 물리 업데이트
@@ -614,15 +1137,15 @@ function updateEnemyPhysics() {
                     } else {
                         enemy.direction = 1;
                     }
-                    enemy.walkSpeed = 2 + gameState.stage * 0.3;
+                    enemy.walkSpeed = 3; // 보스 추격 속도 고정
                 } else {
                     enemy.isAggro = false;
-                    enemy.walkSpeed = 1 + gameState.stage * 0.2;
+                    enemy.walkSpeed = 2; // 보스 일반 속도 고정
                 }
             }
             
             // 이동 처리
-            if (enemy.isMoving && !gameState.questionActive) {
+            if (enemy.isMoving && !gameState.questionActive && !gameState.bossDialogueActive) {
                 enemy.x += enemy.walkSpeed * enemy.direction;
                 
                 // 순찰 범위 체크
@@ -744,7 +1267,7 @@ function checkCollisions() {
         }
     });
     
-    // 적 충돌 체크 - 수정된 부분
+    // 적 충돌 체크
     enemies.forEach(enemy => {
         if (!enemy.alive) return;
         
@@ -769,53 +1292,24 @@ function checkCollisions() {
                 height: player.height
             };
             
-            // 디버그: 충돌 박스 시각화
-            if (typeof debugMode !== 'undefined' && debugMode) {
-                const screenX = enemy.x - gameState.cameraX;
-                const playerScreenX = player.worldX - gameState.cameraX;
-                
-                // 몬스터 충돌 박스 (파란색)
-                ctx.strokeStyle = 'blue';
-                ctx.lineWidth = 2;
-                ctx.strokeRect(screenX, enemy.y, enemy.width, enemy.height);
-                
-                // 플레이어 충돌 박스 (초록색)
-                ctx.strokeStyle = 'green';
-                ctx.lineWidth = 2;
-                ctx.strokeRect(playerScreenX, player.y - player.height, player.width, player.height);
-            }
-            
             if (checkBoxCollision(playerCollisionBox, enemyCollisionBox)) {
                 if (!gameState.questionActive && !gameState.bossDialogueActive) {
-                    // 스테이지 20 보스와의 첫 만남 - 대화 시작
+                    // 스테이지 20 보스와의 첫 만남 - 간단한 대화
                     if (enemy.isBoss && gameState.stage === 20 && !enemy.dialogueShown) {
                         enemy.dialogueShown = true;
-                        gameState.bossDialogueActive = true;
                         gameState.isMoving = false;
                         player.velocityX = 0;
                         player.velocityY = 0;
                         
-                        // UI 숨기기
-                        document.getElementById('ui').style.display = 'none';
-                        document.getElementById('controls').style.display = 'none';
-                        
-                        // 보스 대화 시작 (등장 대화)
-                        if (typeof startBossDialogue === 'function') {
-                            startBossDialogue(canvas, ctx, gameState.selectedCharacter, enemy.hp, enemy.maxHp, function() {
-                                // 대화 완료 후 전투 시작
-                                gameState.bossDialogueActive = false;
-                                gameState.questionActive = true;
-                                gameState.currentEnemy = enemy;
-                                
-                                // UI 다시 표시
-                                document.getElementById('ui').style.display = 'block';
-                                document.getElementById('controls').style.display = 'flex';
-                                
-                                generateEnglishQuestion();
-                                updateQuestionPanel();
-                                document.getElementById('questionPanel').style.display = 'block';
-                            });
-                        }
+                        showBossMessage('intro', function() {
+                            // 대화 완료 후 전투 시작
+                            gameState.questionActive = true;
+                            gameState.currentEnemy = enemy;
+                            
+                            generateEnglishQuestion();
+                            updateQuestionPanel();
+                            document.getElementById('questionPanel').style.display = 'block';
+                        });
                         return;
                     }
                     
@@ -838,7 +1332,6 @@ function checkCollisions() {
         }
     });
 }
-
 
 // 박스 충돌 체크
 function checkBoxCollision(box1, box2) {
@@ -871,7 +1364,6 @@ function updateUI() {
 }
 
 // 렌더링
-// 렌더링 - 완전히 수정된 버전
 function render() {
     ctx.save();
     if (gameState.screenShake !== 0) {
@@ -901,13 +1393,6 @@ function render() {
                 drawPixelSprite(data.sprite, data.colorMap, screenX, obstacle.y);
             }
             
-            // 디버그: 장애물 충돌 박스 표시
-            if (typeof debugMode !== 'undefined' && debugMode) {
-                ctx.strokeStyle = 'red';
-                ctx.lineWidth = 2;
-                ctx.strokeRect(screenX, obstacle.y, obstacle.width, obstacle.height);
-            }
-            
             // 충돌 힌트 표시
             if (!gameState.isMoving && Math.abs(player.worldX - obstacle.x) < 100) {
                 ctx.fillStyle = 'rgba(255, 255, 0, 0.5)';
@@ -916,51 +1401,40 @@ function render() {
         }
     });
     
-    // 적 렌더링 - 완전히 수정된 부분
-    enemies.forEach(enemy => {
-        if (!enemy.alive) return;
-        const screenX = enemy.x - gameState.cameraX;
-        if (screenX > -100 && screenX < canvas.width + 100) {
-            // 알파벳 몬스터 또는 보스 렌더링
-            if (enemy.type === 'boss') {
-                // 보스 렌더링
-                if (typeof pixelData !== 'undefined' && pixelData.boss) {
-                    const data = pixelData.boss;
-                    drawPixelSprite(data.idle, data.colorMap, screenX, enemy.y);
-                }
-            } else {
-                // 알파벳 몬스터 렌더링
-                if (typeof alphabetMonsters !== 'undefined' && alphabetMonsters[enemy.type]) {
-                    const data = alphabetMonsters[enemy.type];
-                    drawPixelSprite(data.idle, data.colorMap, screenX, enemy.y);
-                }
-            }
-            
-            // 디버그: 몬스터 충돌 박스 표시
-            if (typeof debugMode !== 'undefined' && debugMode) {
-                ctx.strokeStyle = 'blue';
-                ctx.lineWidth = 2;
-                ctx.strokeRect(screenX, enemy.y, enemy.width, enemy.height);
-                
-                // 몬스터 중심점 표시
-                ctx.fillStyle = 'red';
-                ctx.fillRect(screenX + enemy.width/2 - 2, enemy.y + enemy.height/2 - 2, 4, 4);
-            }
-            
-            // 보스 어그로 표시
-            if (enemy.isBoss && enemy.isAggro) {
-                ctx.fillStyle = 'red';
-                ctx.fillRect(screenX, enemy.y - 15, enemy.width, 3);
-                
-                // 보스 체력바
-                ctx.fillStyle = 'rgba(0,0,0,0.5)';
-                ctx.fillRect(screenX - 10, enemy.y - 25, enemy.width + 20, 8);
-                ctx.fillStyle = '#FF0000';
-                const healthPercent = enemy.hp / enemy.maxHp;
-                ctx.fillRect(screenX - 8, enemy.y - 23, (enemy.width + 16) * healthPercent, 4);
-            }
-        }
-    });
+    // 적 렌더링
+	enemies.forEach(enemy => {
+		if (!enemy.alive) return;
+		const screenX = enemy.x - gameState.cameraX;
+		if (screenX > -100 && screenX < canvas.width + 100) {
+			// 보스 렌더링
+			if (enemy.type === 'boss') {
+				// alphabetMonsters 객체에서 보스 데이터 가져오기
+				if (typeof alphabetMonsters !== 'undefined' && alphabetMonsters.boss) {
+					const data = alphabetMonsters.boss;
+					drawPixelSprite(data.idle, data.colorMap, screenX, enemy.y);
+				}
+			} else {
+				// 알파벳 몬스터 렌더링
+				if (typeof alphabetMonsters !== 'undefined' && alphabetMonsters[enemy.type]) {
+					const data = alphabetMonsters[enemy.type];
+					drawPixelSprite(data.idle, data.colorMap, screenX, enemy.y);
+				}
+			}
+			
+			// 보스 어그로 표시
+			if (enemy.isBoss && enemy.isAggro) {
+				ctx.fillStyle = 'red';
+				ctx.fillRect(screenX, enemy.y - 15, enemy.width, 3);
+				
+				// 보스 체력바
+				ctx.fillStyle = 'rgba(0,0,0,0.5)';
+				ctx.fillRect(screenX - 10, enemy.y - 25, enemy.width + 20, 8);
+				ctx.fillStyle = '#FF0000';
+				const healthPercent = enemy.hp / enemy.maxHp;
+				ctx.fillRect(screenX - 8, enemy.y - 23, (enemy.width + 16) * healthPercent, 4);
+			}
+		}
+	});
     
     // 플레이어 렌더링
     if (typeof pixelData !== 'undefined' && pixelData[player.sprite]) {
@@ -1043,17 +1517,6 @@ function render() {
             
             drawPixelSprite(sprite, playerData.colorMap, player.x, player.y - player.height);
         }
-        
-        // 디버그: 플레이어 충돌 박스 표시
-        if (typeof debugMode !== 'undefined' && debugMode) {
-            ctx.strokeStyle = 'green';
-            ctx.lineWidth = 2;
-            ctx.strokeRect(player.x, player.y - player.height, player.width, player.height);
-            
-            // 플레이어 중심점 표시
-            ctx.fillStyle = 'yellow';
-            ctx.fillRect(player.x + player.width/2 - 2, player.y - player.height/2 - 2, 4, 4);
-        }
     }
     
     // 파티클 렌더링 (particles.js에서)
@@ -1084,14 +1547,10 @@ function generateEnglishQuestion() {
     
     gameState.currentQuestion = wordManager.generateMultipleChoice(gameState.selectedUnits);
     
-    // 보스전의 경우 더 어려운 문제 (Unit 7-8에서만)
+    // 보스전의 경우 선택된 모든 Unit에서 문제 출제
     if (gameState.currentEnemy && gameState.currentEnemy.type === 'boss') {
-        const hardUnits = gameState.selectedUnits.filter(unit => 
-            unit === 'Unit7' || unit === 'Unit8'
-        );
-        if (hardUnits.length > 0) {
-            gameState.currentQuestion = wordManager.generateMultipleChoice(hardUnits);
-        }
+        // 보스전에서는 사용자가 선택한 모든 Unit 사용 (별도 필터링 없음)
+        gameState.currentQuestion = wordManager.generateMultipleChoice(gameState.selectedUnits);
     }
 }
 
@@ -1164,8 +1623,24 @@ function selectChoice(choiceIndex) {
                     createParticles(enemyScreenX, gameState.currentEnemy.y, 'defeat');
                 }
                 
-                gameState.isMoving = true;
+                // 보스 처치 시 엔딩 대화
+                if (gameState.currentEnemy.type === 'boss') {
+                    document.getElementById('questionPanel').style.display = 'none';
+                    gameState.questionActive = false;
+                    
+                    showBossMessage('defeat', function() {
+                        // 엔딩으로 이동
+                        if (typeof showEnding === 'function') {
+                            showEnding();
+                        } else {
+                            alert('🎉 축하합니다! 모든 스테이지를 클리어했어요! 🎉');
+                            showMenu();
+                        }
+                    });
+                    return;
+                }
                 
+                gameState.isMoving = true;
                 document.getElementById('questionPanel').style.display = 'none';
                 gameState.questionActive = false;
                 gameState.currentEnemy = null;
@@ -1174,35 +1649,19 @@ function selectChoice(choiceIndex) {
                     showFloatingText(player.x, player.y - 50, '완료!', '#00FF00');
                 }
             } else {
-				// 보스전 중간대사 (3문제 맞췄을 때, 체력이 2가 될 때)
+				// 보스전 중간대사 (체력이 2가 될 때)
 				if (gameState.currentEnemy.type === 'boss' && gameState.currentEnemy.hp === 2) {
-					// UI 숨기기
-					document.getElementById('ui').style.display = 'none';
-					document.getElementById('controls').style.display = 'none';
 					document.getElementById('questionPanel').style.display = 'none';
 					gameState.isMoving = false;
 					
-					// 보스 중간대사 실행
-					if (typeof startBossDialogue === 'function') {
-						startBossDialogue(canvas, ctx, gameState.selectedCharacter, gameState.currentEnemy.hp, gameState.currentEnemy.maxHp, function() {
-							// 중간대사 완료 후 전투 재개
-							gameState.questionActive = true;
-							
-							// UI 다시 표시
-							document.getElementById('ui').style.display = 'block';
-							document.getElementById('controls').style.display = 'flex';
-							
-							generateEnglishQuestion();
-							updateQuestionPanel();
-							document.getElementById('questionPanel').style.display = 'block';
-						}, true); // 중간대사 플래그
-					} else {
-						// startBossDialogue가 없으면 간단한 메시지만
-						setTimeout(() => {
-							generateEnglishQuestion();
-							updateQuestionPanel();
-						}, 1000);
-					}
+					showBossMessage('mid', function() {
+						// 중간대사 완료 후 전투 재개
+						gameState.questionActive = true;
+						
+						generateEnglishQuestion();
+						updateQuestionPanel();
+						document.getElementById('questionPanel').style.display = 'block';
+					});
 				} else {
 					generateEnglishQuestion();
 					updateQuestionPanel();
@@ -1389,7 +1848,7 @@ function nextStage() {
 
 // 점프 함수
 function jump() {
-    if (player.onGround && !gameState.questionActive) {
+    if (player.onGround && !gameState.questionActive && !gameState.bossDialogueActive) {
         const jumpPower = getJumpPower();
         player.velocityY = jumpPower;
         
@@ -1493,7 +1952,7 @@ document.addEventListener('touchstart', function(e) {
 }, { passive: true });
 
 document.addEventListener('touchend', function(e) {
-    if (!gameState.running || gameState.questionActive) return;
+    if (!gameState.running || gameState.questionActive || gameState.bossDialogueActive) return;
     
     const touchEndY = e.changedTouches[0].clientY;
     const touchEndTime = Date.now();
